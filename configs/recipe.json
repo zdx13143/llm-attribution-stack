@@ -155,7 +155,7 @@
   },
 
   "complementary_stack": {
-    "note": "independent process; members weighted as log-probability multipliers; total approx 3.3",
+    "note": "independent process; members weighted as log-probability multipliers; member multipliers sum to 2.86, centred twins add a further 1.38",
     "weights": {
       "stylegram": 1.516,
       "tokattn_deb": 0.185,

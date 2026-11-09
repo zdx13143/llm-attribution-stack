@@ -54,7 +54,7 @@
 | 主干 | DeBERTa-v3-large 编码器头 | **1.0** | 冻结主干 |
 | 主融合 | 4 视图 n-gram SVC | **1.5** | 只吃词法信号，与外层堆叠互补 |
 | 主融合 | 外部匹配语料池（样本权重 0.5） | — | 扩充稀有类 |
-| 互补 | 独立堆叠，**16 个成员**（内部权重合计约 3.3） | **0.15** | 词法 / 风格计量 / LoRA / token-attention / UltraBERT / 编码器头 |
+| 互补 | 独立堆叠，**16 个成员**（乘数合计 2.86，另有 twin 乘数 1.38） | **0.15** | 词法 / 风格计量 / LoRA / token-attention / UltraBERT / 编码器头 |
 | 门控 | ATLAS（source-conditioned likelihood） | 0.10 | 仅 top-2 margin < 0.3 的行 |
 
 完整参数见 [`configs/recipe.json`](configs/recipe.json)，逐项说明见 [`docs/METHOD.md`](docs/METHOD.md)。
