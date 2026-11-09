@@ -89,7 +89,7 @@ P_twin = LR(X_centered)                  # 单独拟合一个分类器
 
 ---
 
-## 4. 互补堆叠（14 个成员）
+## 4. 互补堆叠（16 个成员）
 
 独立进程产出 `comp_logit.npy`，再以 **0.15** 的权重并入。其内部按 **log 概率乘数**加权（合计约 3.3）：
 
@@ -99,7 +99,7 @@ P_twin = LR(X_centered)                  # 单独拟合一个分类器
 | `tokattn_deb` | 0.185 | DeBERTa token-attention 头 |
 | `lora24_public` | 0.177 | Qwen3-8B LoRA 检查点（public 版） |
 | `lora24_claude` | 0.177 | 同上（claude 专精版） |
-| `lora20_q25_instyle` | 0.170 | Qwen2.5-20B in-style LoRA |
+| `lora20_q25_instyle` | 0.170 | Qwen2.5-7B in-style LoRA（保留 20 层，名字里的 20 指层数） |
 | `tokattn_q35` | 0.153 | Qwen3.5-9B token-attention；**最贵的成员**（1.7–2.7 h） |
 | `desk` | 0.132 | desklib 检测器编码器头 |
 | `lora24_seed7` | 0.113 | 同 public 版，不同种子 |
@@ -143,7 +143,17 @@ P_twin = LR(X_centered)                  # 单独拟合一个分类器
 P = softmax( Σ_members  w_m · logit_m  /  Σ w_m )
 ```
 
-工程上先对每个成员做 `log_softmax` 再乘权重求和，最后归一化。`--tfidf_w` 与 `--distort_w` 在本配方中为 **0**（早期版本使用，最终版本关闭）。
+主融合的权重账（成员之外另有两项）：
+
+| 项 | 权重 | 说明 |
+|---|---|---|
+| 六个主干成员 | 3.0 / 2.0 / 1.0 / 2.5 / 1.0 / 1.0 | 见 §3 |
+| 4 视图 n-gram SVC | **1.5** | 只吃词法信号，独立于互补堆叠里的 `stylegram` |
+| 外部匹配语料池 | **0.5** | 影响 SVC 与组头的训练样本权重 |
+| 中心化 twin | 1.0（再乘成员权重） | 见 §3.2 |
+| `tfidf_w` / `distort_w` | **0** | 早期版本使用，本配方关闭 |
+
+工程上先对每个成员做 `log_softmax` 再乘权重求和，最后除以权重和。在 log 域加权，避免概率连乘时被单个成员主导。
 
 ---
 
