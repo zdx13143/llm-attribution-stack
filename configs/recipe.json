@@ -1,0 +1,258 @@
+{
+  "schema": "llm-attribution-stack/recipe@1",
+  "task": {
+    "name": "name-that-llm",
+    "input": "english passage, 40-250 words",
+    "n_classes": 18,
+    "metric": "balanced_accuracy",
+    "train_rows": 2699,
+    "train_prompts": 150,
+    "test_rows": 4000,
+    "test_prompts_seen_in_train": false
+  },
+
+  "labels": [
+    "gpt-5.5",
+    "gpt-5.6-luna",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-6-astra",
+    "gemini-3.1-pro-preview",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash",
+    "claude-fable-5",
+    "claude-opus-4-6",
+    "claude-opus-4-8",
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "qwen3.8-max",
+    "glm-5.3",
+    "glm-5.3-flash",
+    "kimi-k3"
+  ],
+
+  "lab_of": {
+    "gpt-5.5": "OpenAI",
+    "gpt-5.6-luna": "OpenAI",
+    "gpt-5.6-sol": "OpenAI",
+    "gpt-5.6-terra": "OpenAI",
+    "gpt-6-astra": "OpenAI",
+    "gemini-3.1-pro-preview": "Google",
+    "gemini-3.6-flash": "Google",
+    "gemini-3.7-flash": "Google",
+    "gemini-3.8-flash": "Google",
+    "claude-fable-5": "Anthropic",
+    "claude-opus-4-6": "Anthropic",
+    "claude-opus-4-8": "Anthropic",
+    "claude-opus-5": "Anthropic",
+    "claude-sonnet-5": "Anthropic",
+    "qwen3.8-max": "Qwen",
+    "glm-5.3": "ZAI",
+    "glm-5.3-flash": "ZAI",
+    "kimi-k3": "Moonshot AI"
+  },
+
+  "trunk_members": [
+    {
+      "name": "q14v5",
+      "type": "l24",
+      "base": "Qwen3-14B-Base",
+      "adapters": "5 folds + full fit (v5)",
+      "keep_layers": 27,
+      "pool_layers": [2, 4, 6, 8, 12, 16, 20, 24],
+      "w": 3.0,
+      "batch_size": 8,
+      "max_len": 384,
+      "twin": 0.35,
+      "gauss": 0.70
+    },
+    {
+      "name": "q8v5",
+      "type": "l24",
+      "base": "Qwen3-8B-Base",
+      "adapters": "5 folds + full fit (v5)",
+      "keep_layers": 24,
+      "pool_layers": [2, 4, 6, 8, 12, 16, 20, 24],
+      "w": 2.0,
+      "batch_size": 16,
+      "max_len": 384,
+      "twin": 0.35,
+      "gauss": 0.44
+    },
+    {
+      "name": "ll8v5",
+      "type": "l24",
+      "base": "Llama-3.1-8B",
+      "adapters": "5 folds + full fit (v5)",
+      "keep_layers": 24,
+      "pool_layers": [2, 4, 6, 8, 12, 16, 20, 24],
+      "w": 1.0,
+      "batch_size": 16,
+      "max_len": 384,
+      "twin": 0.35
+    },
+    {
+      "name": "n14b",
+      "type": "l24",
+      "base": "Qwen3-14B",
+      "adapters": "two-stage lora14b",
+      "keep_layers": "from adapter config",
+      "pool_layers": "from adapter config",
+      "w": 2.5,
+      "batch_size": 8,
+      "max_len": "from adapter config",
+      "twin": 0.35,
+      "no_final_norm": true,
+      "eos_id": "from adapter config"
+    },
+    {
+      "name": "q25_14",
+      "type": "l24",
+      "base": "Qwen2.5-14B",
+      "adapters": "lora_qwen25_14b",
+      "keep_layers": "from adapter config",
+      "pool_layers": "from adapter config",
+      "w": 1.0,
+      "batch_size": 8,
+      "max_len": "from adapter config",
+      "twin": 0.35,
+      "no_final_norm": true,
+      "eos_id": "from adapter config"
+    },
+    {
+      "name": "deb",
+      "type": "encoder",
+      "base": "DeBERTa-v3-large",
+      "frozen": true,
+      "w": 1.0
+    }
+  ],
+
+  "fusion": {
+    "formula": "P = softmax( sum_m w_m * log_softmax(logits_m) / sum_m w_m )",
+    "extra_w": 0.5,
+    "svc_w": 1.5,
+    "adapt_w": 1.0,
+    "adapt_thr": 0.15,
+    "comp_w": 0.15,
+    "atlas_w": 0.10,
+    "atlas_margin": 0.3,
+    "sinkhorn": 1.0,
+    "post": true,
+    "tfidf_w": 0.0,
+    "distort_w": 0.0
+  },
+
+  "grouping": {
+    "method": "word tfidf + stopwords + svd + average linkage",
+    "threshold": 0.60,
+    "group_layer": 24,
+    "min_size": 2,
+    "max_size": 18,
+    "dense_cluster_lo": 12,
+    "dense_cluster_hi": 18
+  },
+
+  "complementary_stack": {
+    "note": "independent process; members weighted as log-probability multipliers; total approx 3.3",
+    "weights": {
+      "stylegram": 1.516,
+      "tokattn_deb": 0.185,
+      "lora24_public": 0.177,
+      "lora24_claude": 0.177,
+      "lora20_q25_instyle": 0.170,
+      "tokattn_q35": 0.153,
+      "desk": 0.132,
+      "lora24_seed7": 0.113,
+      "ultrabert": 0.095,
+      "stylometry_lgb": 0.063,
+      "debv3l": 0.050,
+      "electl": 0.032,
+      "q3_8b": 0.0,
+      "q25_7b": 0.0,
+      "q3_4b": 0.0,
+      "glm9b": 0.0
+    },
+    "twin_weights": {
+      "q3_8b": 0.3285,
+      "q25_7b": 0.2115,
+      "q3_4b": 0.1245,
+      "glm9b": 0.165,
+      "debv3l": 0.25
+    },
+    "lora_twin_weights": {
+      "lora24_public": 0.15,
+      "lora24_claude": 0.15
+    },
+    "gaussian_heads": {
+      "gauss_q3_8b_L22": {"src": "q3_8b", "part": "L22_mean", "dim": 384, "T1": 2.351, "Tg": 2.306, "w": 0.3285},
+      "gauss_glm9b_L8": {"src": "glm9b", "part": "L8_mean", "dim": 384, "T1": 2.722, "Tg": 2.596, "w": 0.165},
+      "gauss_q3_4b_L4": {"src": "q3_4b", "part": "L4_mean", "dim": 384, "T1": 2.725, "Tg": 2.578, "w": 0.1245},
+      "gauss_debv3l_L24": {"src": "debv3l", "part": "L24_mean", "dim": 384, "T1": 3.112, "Tg": 3.069, "w": 0.25}
+    },
+    "gaussian_setting": {
+      "reduction": "wpca",
+      "se_shrink": "lw",
+      "sp_shrink": "lw",
+      "lam_floor": 0.0001,
+      "n_exact": 3,
+      "inj": true,
+      "iters": 5,
+      "repel": true,
+      "sp_scale": 1.0
+    },
+    "gate_lambda": {"claude_style": 1.5, "claude_lora": 1.0, "family": 0.25},
+    "balance_alpha": 0.5,
+    "extra_min_labels": 12,
+    "extra_share": 0.5,
+    "lora_trunk": {"model_type": "qwen3", "hidden": 4096, "keep_layers": 24, "max_len": 447, "batch_size": 8},
+    "lora_trunk_qwen2": {"model_type": "qwen2", "hidden": 3584, "keep_layers": 20, "max_len": 447, "batch_size": 8}
+  },
+
+  "guards": [
+    {
+      "mark": " — ",
+      "meaning": "em dash with surrounding spaces",
+      "allowed": ["claude-opus-4-6", "claude-opus-5", "glm-5.3", "glm-5.3-flash"]
+    },
+    {
+      "mark": "’",
+      "meaning": "right single quotation mark",
+      "allowed": ["gpt-5.5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-6-astra",
+                  "gemini-3.1-pro-preview", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash",
+                  "qwen3.8-max", "kimi-k3"]
+    },
+    {
+      "mark": "\"",
+      "meaning": "straight double quote",
+      "allowed": ["claude-fable-5", "claude-opus-4-6", "claude-opus-4-8", "claude-opus-5", "claude-sonnet-5",
+                  "gemini-3.1-pro-preview", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash",
+                  "glm-5.3", "glm-5.3-flash", "gpt-5.5", "kimi-k3"]
+    },
+    {
+      "mark": "“",
+      "meaning": "left double quotation mark",
+      "allowed": ["gemini-3.8-flash", "gpt-5.5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra",
+                  "gpt-6-astra", "kimi-k3", "qwen3.8-max"]
+    },
+    {
+      "mark": "–",
+      "meaning": "en dash",
+      "allowed": ["claude-opus-5", "gemini-3.1-pro-preview", "glm-5.3-flash",
+                  "gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra", "kimi-k3"]
+    }
+  ],
+
+  "runtime": {
+    "hardware": "T4 x 2, internet off",
+    "measured_seconds": 14656,
+    "budget_total_hours": 8.3,
+    "atlas_reserve_seconds": 600,
+    "degradation_order": [
+      "drop tokattn_q35 (saves 1.7-2.7h, weight 0.153 of ~3.3)",
+      "disable atlas (atlas_w=0)",
+      "disable complementary stack (comp_w=0)"
+    ]
+  }
+}

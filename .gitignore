@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 模型与数据不入库
+models/
+data/
+*.safetensors
+*.bin
+*.pt
+*.npz
+*.npy
+*.parquet
+!configs/*.parquet
+
+# 竞赛提交文件
+submission.*
+cache/
+outputs/
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store
