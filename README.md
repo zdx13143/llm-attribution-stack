@@ -94,11 +94,11 @@ llm-attribution-stack/
 └── NOTICE                  # 第三方来源与许可
 ```
 
-`src/postprocess.py` 是可以直接跑的最小核心：给一份 logit 矩阵、原文和簇编号，它完成排版约束 → Sinkhorn → 稠密簇匹配 → 输出标签。
+`src/postprocess.py` 是可以直接跑的最小核心：给一份 logit 矩阵、原文和簇编号，它依次完成 **Sinkhorn 边缘平衡 → 稠密簇匹配 → 排版硬约束**（硬约束放最后，不被启发式覆盖）→ 输出标签。
 
 ```bash
 pip install -r requirements.txt
-python -m src.postprocess            # 用合成数据跑一遍，验证逻辑
+python src/postprocess.py            # 用合成数据跑一遍，验证逻辑
 ```
 
 ---
